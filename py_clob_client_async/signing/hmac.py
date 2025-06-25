@@ -1,6 +1,7 @@
 import hmac
 import hashlib
 import base64
+import json
 
 
 def build_hmac_signature(
@@ -12,9 +13,12 @@ def build_hmac_signature(
     base64_secret = base64.urlsafe_b64decode(secret)
     message = str(timestamp) + str(method) + str(requestPath)
     if body:
-        # NOTE: Necessary to replace single quotes with double quotes
-        # to generate the same hmac message as go and typescript
-        message += str(body).replace("'", '"')
+        # Use compact JSON format to match what httpx sends
+        if isinstance(body, str):
+            body_str = body
+        else:
+            body_str = json.dumps(body, separators=(',', ':'), sort_keys=True)
+        message += body_str
 
     h = hmac.new(base64_secret, bytes(message, "utf-8"), hashlib.sha256)
 

@@ -1,4 +1,5 @@
 import httpx
+import json
 
 from py_clob_client_async.clob_types import (
     DropNotificationParams,
@@ -35,23 +36,36 @@ def overloadHeaders(method: str, headers: dict) -> dict:
 async def request(endpoint: str, method: str, headers=None, data=None):
     try:
         headers = overloadHeaders(method, headers)
-        async with httpx.AsyncClient() as client:
-            resp = await client.request(
-                method=method,
-                url=endpoint,
-                headers=headers,
-                json=data if data else None,
-            )
+        
+        # httpx requires explicit timeout and follows redirects differently than requests
+        async with httpx.AsyncClient(timeout=30.0, follow_redirects=True) as client:
+            # Important: use compact JSON encoding to match what we sign
+            if data is not None:
+                content = json.dumps(data, separators=(',', ':'), sort_keys=True)
+                headers["Content-Length"] = str(len(content))
+                resp = await client.request(
+                    method=method,
+                    url=endpoint,
+                    headers=headers,
+                    content=content,
+                )
+            else:
+                resp = await client.request(
+                    method=method,
+                    url=endpoint,
+                    headers=headers,
+                )
+            
             if resp.status_code != 200:
                 raise PolyApiException(resp)
 
             try:
                 return resp.json()
-            except httpx.JSONDecodeError:
+            except json.JSONDecodeError:
                 return resp.text
 
-    except httpx.RequestException:
-        raise PolyApiException(error_msg="Request exception!")
+    except httpx.HTTPError as e:
+        raise PolyApiException(error_msg=f"Request exception: {str(e)}")
 
 
 async def post(endpoint, headers=None, data=None):
