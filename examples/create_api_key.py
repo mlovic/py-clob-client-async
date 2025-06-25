@@ -1,8 +1,8 @@
 from dotenv import load_dotenv
 import os
 
-from py_clob_client.client import ClobClient
-from py_clob_client.constants import AMOY
+from py_clob_client_async.client import ClobClient
+from py_clob_client_async.constants import AMOY
 
 load_dotenv()
 

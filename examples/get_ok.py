@@ -1,6 +1,6 @@
 import asyncio
 import os
-from py_clob_client.client import ClobClient
+from py_clob_client_async.client import ClobClient
 
 
 async def main():

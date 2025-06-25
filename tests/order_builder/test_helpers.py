@@ -1,6 +1,6 @@
 from unittest import TestCase
 
-from py_clob_client.order_builder.helpers import decimal_places
+from py_clob_client_async.order_builder.helpers import decimal_places
 
 
 class TestHelpers(TestCase):

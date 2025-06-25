@@ -1,5 +1,5 @@
-from py_clob_client.client import ClobClient
-from py_clob_client.clob_types import BookParams
+from py_clob_client_async.client import ClobClient
+from py_clob_client_async.clob_types import BookParams
 
 
 def main():

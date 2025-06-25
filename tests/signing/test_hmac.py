@@ -1,6 +1,6 @@
 from unittest import TestCase
 
-from py_clob_client.signing.hmac import build_hmac_signature
+from py_clob_client_async.signing.hmac import build_hmac_signature
 
 
 class TestHMAC(TestCase):

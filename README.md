@@ -39,9 +39,9 @@ See [this gist](https://gist.github.com/poly-rodr/44313920481de58d5a3f6d1f8226bd
 
 ```py
 import asyncio
-from py_clob_client.client import ClobClient
-from py_clob_client.clob_types import OrderArgs, OrderType
-from py_clob_client.order_builder.constants import BUY
+from py_clob_client_async.client import ClobClient
+from py_clob_client_async.clob_types import OrderArgs, OrderType
+from py_clob_client_async.order_builder.constants import BUY
 
 host: str = "https://clob.polymarket.com"
 key: str = "" #This is your Private Key. Export from reveal.polymarket.com or from your Web3 Application
