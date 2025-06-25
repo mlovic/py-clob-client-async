@@ -33,24 +33,24 @@ def overloadHeaders(method: str, headers: dict) -> dict:
     return headers
 
 
-async def request(endpoint: str, method: str, headers=None, data=None):
+async def request(endpoint: str, method: str, headers=None, data=None, client=None):
     try:
         headers = overloadHeaders(method, headers)
         
-        # httpx requires explicit timeout and follows redirects differently than requests
-        async with httpx.AsyncClient(timeout=30.0, follow_redirects=True) as client:
+        # Helper function to make the actual request
+        async def make_request(http_client):
             # Important: use compact JSON encoding to match what we sign
             if data is not None:
                 content = json.dumps(data, separators=(',', ':'), sort_keys=True)
                 headers["Content-Length"] = str(len(content))
-                resp = await client.request(
+                resp = await http_client.request(
                     method=method,
                     url=endpoint,
                     headers=headers,
                     content=content,
                 )
             else:
-                resp = await client.request(
+                resp = await http_client.request(
                     method=method,
                     url=endpoint,
                     headers=headers,
@@ -63,21 +63,28 @@ async def request(endpoint: str, method: str, headers=None, data=None):
                 return resp.json()
             except json.JSONDecodeError:
                 return resp.text
+        
+        # Use provided client or create a new one
+        if client is None:
+            async with httpx.AsyncClient(timeout=30.0, follow_redirects=True) as new_client:
+                return await make_request(new_client)
+        else:
+            return await make_request(client)
 
     except httpx.HTTPError as e:
         raise PolyApiException(error_msg=f"Request exception: {str(e)}")
 
 
-async def post(endpoint, headers=None, data=None):
-    return await request(endpoint, POST, headers, data)
+async def post(endpoint, headers=None, data=None, client=None):
+    return await request(endpoint, POST, headers, data, client)
 
 
-async def get(endpoint, headers=None, data=None):
-    return await request(endpoint, GET, headers, data)
+async def get(endpoint, headers=None, data=None, client=None):
+    return await request(endpoint, GET, headers, data, client)
 
 
-async def delete(endpoint, headers=None, data=None):
-    return await request(endpoint, DELETE, headers, data)
+async def delete(endpoint, headers=None, data=None, client=None):
+    return await request(endpoint, DELETE, headers, data, client)
 
 
 def build_query_params(url: str, param: str, val: str) -> str:

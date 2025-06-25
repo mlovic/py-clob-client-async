@@ -8,6 +8,10 @@
 
 This is an async fork of [Polymarket's official py-clob-client](https://github.com/Polymarket/py-clob-client). It maintains the same functionality while providing async/await support for better performance in concurrent applications.
 
+**Key improvements:**
+- Full async/await support using httpx
+- Optional connection pooling by passing your own `httpx.AsyncClient` for better performance
+
 Full Polymarket API documentation can be found [here](https://docs.polymarket.com/developers/dev-resources/main).
 
 ### Installation
