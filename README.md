@@ -1,16 +1,20 @@
-## py-clob-client
+## py-clob-client-async
 
-<a href='https://pypi.org/project/py-clob-client'>
-    <img src='https://img.shields.io/pypi/v/py-clob-client.svg' alt='PyPI'/>
+<a href='https://pypi.org/project/py-clob-client-async'>
+    <img src='https://img.shields.io/pypi/v/py-clob-client-async.svg' alt='PyPI'/>
 </a>
 
-Python client for the Polymarket CLOB. Full API documentation can be found [here](https://docs.polymarket.com/developers/dev-resources/main).
+**Async Python client for the Polymarket CLOB**
+
+This is an async fork of [Polymarket's official py-clob-client](https://github.com/Polymarket/py-clob-client). It maintains the same functionality while providing async/await support for better performance in concurrent applications.
+
+Full Polymarket API documentation can be found [here](https://docs.polymarket.com/developers/dev-resources/main).
 
 ### Installation
 
-`pip install py-clob-client`
+`pip install py-clob-client-async`
 
-Intended for use with Python 3.9
+Requires Python 3.9.10+
 
 ### Requisites
 
@@ -34,6 +38,7 @@ See [this gist](https://gist.github.com/poly-rodr/44313920481de58d5a3f6d1f8226bd
 ### Usage
 
 ```py
+import asyncio
 from py_clob_client.client import ClobClient
 from py_clob_client.clob_types import OrderArgs, OrderType
 from py_clob_client.order_builder.constants import BUY
@@ -58,19 +63,25 @@ client = ClobClient(host, key=key, chain_id=chain_id)
 ## Create and sign a limit order buying 5 tokens for 0.010c each
 #Refer to the Markets API documentation to locate a tokenID: https://docs.polymarket.com/developers/gamma-markets-api/get-markets
 
-client.set_api_creds(client.create_or_derive_api_creds()) 
+async def main():
+    # Set API credentials
+    creds = await client.create_or_derive_api_creds()
+    client.set_api_creds(creds)
+    
+    order_args = OrderArgs(
+        price=0.01,
+        size=5.0,
+        side=BUY,
+        token_id="", #Token ID you want to purchase goes here. 
+    )
+    signed_order = await client.create_order(order_args)
+    
+    ## GTC(Good-Till-Cancelled) Order
+    resp = await client.post_order(signed_order, OrderType.GTC)
+    print(resp)
 
-order_args = OrderArgs(
-    price=0.01,
-    size=5.0,
-    side=BUY,
-    token_id="", #Token ID you want to purchase goes here. 
-)
-signed_order = client.create_order(order_args)
-
-## GTC(Good-Till-Cancelled) Order
-resp = client.post_order(signed_order, OrderType.GTC)
-print(resp)
+# Run the async function
+asyncio.run(main())
 ```
 
 **See [examples](examples/) for more.**
@@ -109,7 +120,7 @@ python setup.py sdist
 
 ```bash
 twine check dist/*
-# Checking dist/py_clob_client-0.22.0.tar.gz: PASSED
+# Checking dist/py_clob_client_async-0.23.0.tar.gz: PASSED
 ```
 
 ```bash
@@ -117,9 +128,9 @@ twine upload dist/*
 
 # Uploading distributions to https://upload.pypi.org/legacy/
 # Enter your API token:
-# Uploading py_clob_client-0.22.0.tar.gz
+# Uploading py_clob_client_async-0.23.0.tar.gz
 # 100% ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 31.9/31.9 kB • 00:00 • 29.6 MB/s
 
 # View at:
-# https://pypi.org/project/py-clob-client/0.22.0/
+# https://pypi.org/project/py-clob-client-async/0.23.0/
 ```
